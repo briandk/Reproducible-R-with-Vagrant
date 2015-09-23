@@ -1,3 +1,7 @@
+# Variables
+export RSTUDIOVERSION='rstudio-server-0.99.684-amd64.deb'
+export CHECKPOINTLOCATION='/home/vagrant/.checkpoint'
+
 # Add CRAN mirror to apt-get sources
 add-apt-repository "deb https://cran.rstudio.com/bin/linux/ubuntu trusty/"
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
@@ -6,15 +10,17 @@ apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 apt-get update && apt-get install --assume-yes --no-install-recommends \
     ca-certificates \
     gdebi-core \
-	git \
-	graphviz \
+    git \
+    graphviz \
     haskell-platform \
     libapache2-mod-proxy-html \
-	libcurl4-openssl-dev \
+    libcurl4-openssl-dev \
     libghc-pandoc-dev \
+    libpq-dev \
     lmodern \
-	libxml2-dev \
+    libxml2-dev \
     nodejs \
+    postgresql \
     qpdf \
     r-base-dev \
     r-recommended \
@@ -26,18 +32,20 @@ apt-get update && apt-get install --assume-yes --no-install-recommends \
     texlive-xetex
 
 # Install Pandoc
-cabal update && cabal install pandoc
-ln -s /root/.cabal/bin/pandoc /usr/local/bin/pandoc
+# cabal update && cabal install pandoc
+# ln -s /root/.cabal/bin/pandoc /usr/local/bin/pandoc
 
 # if RStudio-Server isn't already installed, get RStudio Server
 if [ ! -e /usr/sbin/rstudio-server ] 
-	then 
-		echo "Installing RStudio Server"
-		export RSTUDIOVERSION='rstudio-server-0.99.684-amd64.deb'
-		wget https://s3.amazonaws.com/rstudio-dailybuilds/$RSTUDIOVERSION
-		gdebi --non-interactive $RSTUDIOVERSION
+  then 
+    echo "Installing RStudio Server"
+    wget https://s3.amazonaws.com/rstudio-dailybuilds/$RSTUDIOVERSION
+    gdebi --non-interactive $RSTUDIOVERSION
 fi
-	
+
+# Install Checkpoint and install any R dependencies
+mkdir $CHECKPOINTLOCATION
+R --vanilla -f "/vagrant/setup.R"
 
 # Inform the user what's up
 echo "RStudio server is running at http://localhost:4567"
